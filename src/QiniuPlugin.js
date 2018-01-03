@@ -28,7 +28,7 @@ class QiniuPlugin {
 
       path = path.replace('[hash]', hash);
 
-      const promises = Object.keys(assets).filter((fileName) => {
+      const validFileNames = Object.keys(assets).filter((fileName) => {
         let valid = assets[fileName].emitted;
         if (include) {
           valid = valid
@@ -42,31 +42,31 @@ class QiniuPlugin {
             );
         }
         return valid;
-      }).map((fileName) => {
-        const key = slash(join(path, fileName));
-        const putPolicy = new qiniu.rs.PutPolicy(`${bucket}:${key}`);
-        const token = putPolicy.token();
-        const extra = new qiniu.io.PutExtra();
+      });
 
-        const promise = new Promise((resolve, reject) => {
+      Promise
+        .map(validFileNames, (fileName) => {
+          const key = slash(join(path, fileName));
+          const putPolicy = new qiniu.rs.PutPolicy(`${bucket}:${key}`);
+          const token = putPolicy.token();
+          const extra = new qiniu.io.PutExtra();
+
+          // const promise = new Promise((resolve, reject) => {
           const begin = Date.now();
           qiniu.io.putFile(token, key, assets[fileName].existsAt, extra, (err, ret) => {
             if (!err) {
-              resolve({
+              return ({
                 ...ret,
                 duration: Date.now() - begin,
               });
             } else {
-              reject(err);
+              return err;
+              // reject(err);
             }
           });
-        });
-
-        return promise;
-      });
-
-      Promise
-        .reduce(promises)
+          // });
+          // return promise;
+        }, { concurrency: 10 })
         .then((res) => {
           console.log(res); // eslint-disable-line no-console
           callback();
