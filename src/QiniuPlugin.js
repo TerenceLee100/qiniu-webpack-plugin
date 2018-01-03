@@ -66,7 +66,7 @@ class QiniuPlugin {
       });
 
       Promise
-        .all(promises)
+        .reduce(promises)
         .then((res) => {
           console.log(res); // eslint-disable-line no-console
           callback();
