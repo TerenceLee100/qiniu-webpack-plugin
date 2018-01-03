@@ -1,5 +1,5 @@
 import qiniu from 'qiniu';
-import Promise from 'promise';
+import Promise from 'bluebird';
 import { join } from 'path';
 import slash from 'slash';
 
