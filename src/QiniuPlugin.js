@@ -12,6 +12,7 @@ class QiniuPlugin {
     this.options = Object.assign({}, options);
     qiniu.conf.ACCESS_KEY = this.options.ACCESS_KEY;
     qiniu.conf.SECRET_KEY = this.options.SECRET_KEY;
+    qiniu.conf.BUCKET = this.options.Bucket_Name || null;
   }
 
   apply(compiler) {
